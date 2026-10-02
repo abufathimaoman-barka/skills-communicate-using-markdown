@@ -8,13 +8,19 @@ for (const file of requiredFiles) {
 }
 
 Deno.test("project root files are present and readable", () => {
-  const indexHtml = Deno.readTextFileSync("index.html");
-  const styleCss = Deno.readTextFileSync("style.css");
+  for (const file of requiredFiles) {
+    const contents = Deno.readTextFileSync(file);
+    if (contents.length === 0) {
+      throw new Error(`${file} is empty.`);
+    }
+  }
 
-  if (!indexHtml.includes("<html") && !indexHtml.includes("<body")) {
+  const indexHtml = Deno.readTextFileSync("index.html");
+  if (!/<html|<body/i.test(indexHtml)) {
     throw new Error("index.html is missing the expected HTML structure.");
   }
 
+  const styleCss = Deno.readTextFileSync("style.css");
   if (!styleCss.includes("{") || !styleCss.includes("}")) {
     throw new Error("style.css is missing expected CSS content.");
   }
